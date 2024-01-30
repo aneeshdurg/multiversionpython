@@ -1,0 +1,8 @@
+[project]
+name = "dep_a"
+version = "0.1"
+description = "dependency A"
+dependencies = [
+  "pandas==2.2.0",
+]
+

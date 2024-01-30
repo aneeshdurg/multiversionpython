@@ -1,0 +1,4 @@
+__pycache__/
+py_modules/
+app/
+*.egg-info/
