@@ -3,3 +3,6 @@ This example shows how multiversioned imports might be used. In this example,
 `pandas==2.2.0`, `dep_b` depends on `pandas==2.0.3`. Currently, there's a lot of
 manual steps in `build.py`, but one could imagine integrating this with `pip` or
 `rye` and automatically generating the import map.
+
+To run the demo use `make`. The first run will be slow as it installs all
+dependencies, but subsequent runs should be faster.
