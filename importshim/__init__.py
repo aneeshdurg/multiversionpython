@@ -38,6 +38,7 @@ from typing import Optional, List
 orig_sys_modules = sys.modules.copy()
 per_venv_module_cache = {}
 
+
 def update_env(new_env):
     """C-Extensions break if sys.module's reference changes, so we must update
     the existing dictionary instead of just replacing it"""
@@ -46,7 +47,9 @@ def update_env(new_env):
     for m in mods_to_delete:
         del sys.modules[m]
 
+
 current_venv = None
+
 
 def switch_modules_to_env(venv):
     global current_venv
@@ -67,6 +70,7 @@ def switch_modules_to_env(venv):
 
 force_env = False
 
+
 @contextmanager
 def _env(env_path):
     global force_env
@@ -83,6 +87,7 @@ def _env(env_path):
         if env_path in sys.path_importer_cache:
             del sys.path_importer_cache[env_path]
 
+
 # This method will be used to determine if an import from a library should be
 # wrapped with a `_env` or not.
 known_venvs: List[Path] = []
@@ -96,13 +101,13 @@ def is_in_venv(p: Path) -> Optional[Path]:
 
     parts = p.parts
     try:
-        index = list(parts).index('site-packages')
+        index = list(parts).index("site-packages")
     except ValueError:
         return None
 
     if index > 2:
-        possible_venv_dir = Path(*p.parts[:index - 2])
-        possible_site_packages = Path(*p.parts[:index + 1])
+        possible_venv_dir = Path(*p.parts[: index - 2])
+        possible_site_packages = Path(*p.parts[: index + 1])
         if (possible_venv_dir / "pyvenv.cfg").exists():
             known_venvs.append(possible_site_packages)
             return possible_site_packages
@@ -115,18 +120,20 @@ def in_venv_context():
     for s in stack[::-1]:
         if s.filename == __file__:
             continue
-        if not s.filename.startswith('/'):
+        if not s.filename.startswith("/"):
             continue
-        if (venv := is_in_venv(Path(s.filename))):
+        if venv := is_in_venv(Path(s.filename)):
             parent_venv = venv
             break
     return parent_venv
 
-config_path = Path(__file__).parent / 'import_map.json'
+
+config_path = Path(__file__).parent / "import_map.json"
 with config_path.open() as f:
     config = json.load(f)
 
 orig_import = builtins.__import__
+
 
 def __import__(name: str, globals=None, locals=None, fromlist=(), level=0):
     def import_wrapper():
@@ -142,6 +149,7 @@ def __import__(name: str, globals=None, locals=None, fromlist=(), level=0):
             return import_wrapper()
     return import_wrapper()
 
+
 builtins.__import__ = __import__
 
 
@@ -152,7 +160,7 @@ class PathFinder(MetaPathFinder):
         if not force_env and (parent_venv := in_venv_context()):
             with _env(str(parent_venv)):
                 for finder in sys.meta_path[1:]:
-                    if (module := finder.find_spec(fullname, path, target)):
+                    if module := finder.find_spec(fullname, path, target):
                         return module
         return None
 
